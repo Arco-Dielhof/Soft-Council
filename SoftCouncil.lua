@@ -1,6 +1,6 @@
 if SoftCouncil == nil then SoftCouncil = {} end
 SoftCouncil.events = {}
-SoftCouncil.Version = 5
+SoftCouncil.Version = 6
 local AddOnName = "SoftCouncil"
 
 local UpdateFrame, EventFrame = nil, nil
@@ -470,14 +470,16 @@ function SoftCouncil:AddDataToPlayerFrame(curFrame, playerInfo)
         end
         curConsumableFrame.Texture:SetColorTexture(1, 1, 1, 1)
         local curConsumable = playerInfo.Consumables[i]
-        local curConsumableItemID = SoftCouncil.InfoTable.Consumables[curConsumable][2][1]
-        local _, _, _, _, _, _, _, _, _, curConsumableIcon = GetItemInfo(curConsumableItemID)
-        --local _, _, curConsumableIcon = GetSpellInfo(curConsumable)
-        curConsumableFrame.Texture:SetTexture(curConsumableIcon)
-        if i <= 10 then
-            curConsumableFrame:SetPoint("TOPLEFT", curFrame.Class, "TOPRIGHT", 25 * i + 75, -53)
+        local curConsumableInfo = SoftCouncil.InfoTable.Consumables[curConsumable]
+        if curConsumableInfo ~= nil then
+            local curConsumableItemID = curConsumableInfo[2][1]
+            local _, _, _, _, _, _, _, _, _, curConsumableIcon = GetItemInfo(curConsumableItemID)
+            curConsumableFrame.Texture:SetTexture(curConsumableIcon)
+            if i <= 10 then
+                curConsumableFrame:SetPoint("TOPLEFT", curFrame.Class, "TOPRIGHT", 25 * i + 75, -53)
+            end
+            curConsumableFrame:Show()
         end
-        curConsumableFrame:Show()
     end
 end
 
@@ -796,6 +798,6 @@ end
 
 SoftCouncil:OnLoad()
 
-SoftCouncil.SlashCommands["test"] = function(value)
-    print("TestCommand Works!")
+SoftCouncil.SlashCommands["show"] = function(value)
+    MainFrame:Show()
 end
