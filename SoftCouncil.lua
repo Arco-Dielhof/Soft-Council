@@ -770,7 +770,7 @@ function SoftCouncil.events:CombatLogUnfiltered()
         local year, month, date = SoftCouncil:GetDateTime()
         local dateString = year .. month .. date
         local v1, combatEvent, v3, UnitGUID, casterName, v6, v7, destGUID, destName, v10, v11, spellID, v13, v14, v15 = CombatLogGetCurrentEventInfo()
-        if SoftCouncil.InfoTable.Consumables[spellID] ~= nil then
+        if SoftCouncil.InfoTable.Consumables[spellID] ~= nil and combatEvent == "SPELL_CAST_SUCCESS" then
             for indexPlayers = 1, #SoftCouncilDataTable.Players do
                 if SoftCouncilDataTable.Players[indexPlayers] == UnitGUID then
                     local pullNumber = #SoftCouncilDataTable[dateString][activeEncounter].Pulls
