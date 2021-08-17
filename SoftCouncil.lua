@@ -13,7 +13,7 @@ local dataFrameWidth = 625
 local allDateItems, allEncounterItems, allPullItems, allPlayerItems = {Expanded = {},}, {Expanded = {},}, {Expanded = {},}, {Expanded = {},}
 local allDataItems = {}
 
-if SoftCouncilDataTable == nil then SoftCouncilDataTable = {} end
+if SoftCouncilDataTable == nil then SoftCouncilDataTable = SoftCouncil.DataTable end
 
 function SoftCouncil:OnLoad()
     EventFrame = CreateFrame("Frame", nil, UIParent)
@@ -599,7 +599,7 @@ function SoftCouncil:RegisterEvents(event, func)
 end
 
 function SoftCouncil:GetDateTime()
-    local DateTimeString = date()
+    local DateTimeString = SoftCouncil:GetDateTimeWithOffset(-2)
     local year, month, date, day, time = nil, nil, nil, nil, nil
     if string.find(DateTimeString, "  ") then
         day, month, _, date, time, year = strsplit(" ", DateTimeString)
@@ -608,9 +608,15 @@ function SoftCouncil:GetDateTime()
     end
     day = SoftCouncil:GetFullDayName(day)
     month = SoftCouncil:GetNumericMonth(month)
-    date = tonumber(date)
+    date = SoftCouncil:GetNumericDay(date)
     year = tonumber(year)
     return year, month, date
+end
+
+function SoftCouncil:GetDateTimeWithOffset(offset)
+    local nowTimeString = time()
+    local DateTimeWithOffsetString = nowTimeString + (60 * 60 * offset)
+    return date("%c", DateTimeWithOffsetString);
 end
 
 function SoftCouncil:GetFullDayName(day)
@@ -642,8 +648,9 @@ function SoftCouncil:GetNumericMonth(month)
     return monthN
 end
 
-function SoftCouncil:AddConsumableToPull(curGUID, consID)
-
+function SoftCouncil:GetNumericDay(day)
+    if tonumber(day) < 10 then day = "0" .. tostring(day) end
+    return day
 end
 
 function SoftCouncil:SaveEncounterPull(encounterID)
@@ -746,8 +753,10 @@ function SoftCouncil:OnEvent(_, event, ...)
 end
 
 function SoftCouncil.events:EncounterStart(encounterID)
-    activeEncounter = encounterID
-    SoftCouncil:SaveEncounterPull(encounterID)
+    if SoftCouncil.InfoTable.Encounters[encounterID] ~= nil then
+        activeEncounter = encounterID
+        SoftCouncil:SaveEncounterPull(encounterID)
+    end
 end
 
 function SoftCouncil.events:EncounterEnd()
@@ -765,7 +774,7 @@ function SoftCouncil.events:CombatLogUnfiltered()
                     local pullNumber = #SoftCouncilDataTable[dateString][activeEncounter].Pulls
                     local curPlayer = SoftCouncilDataTable[dateString][activeEncounter][pullNumber][UnitGUID]
                     if curPlayer.Consumables == nil then curPlayer.Consumables = {} end
-                    curPlayer.Consumables[#curPlayer.Consumables + 1] = 0
+                    curPlayer.Consumables[#curPlayer.Consumables + 1] = spellID
                 end
             end
         end
@@ -773,7 +782,7 @@ function SoftCouncil.events:CombatLogUnfiltered()
 end
 
 function SoftCouncil.events:AddonLoaded(...)
-    if ... == "TBC-EPGP" then
+    if ... == "SoftCouncil" then
         SoftCouncil.DataTable = SoftCouncilDataTable
     end
 end
