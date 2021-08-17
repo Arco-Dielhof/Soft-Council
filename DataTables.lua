@@ -22,23 +22,38 @@ SoftCouncil.InfoTable =
         [661] = {EncounterName =         "Prince Malchezaar", RaidID = 532, RaidName = "Karazhan"},
         [662] = {EncounterName =                 "Nightbane", RaidID = 532, RaidName = "Karazhan"},
 
-        [618] = {EncounterName =         "Rage Winterchill", RaidID = 534, RaidName = "The Battle for Mount Hyjal"},
-        [619] = {EncounterName =                "Anetheron", RaidID = 534, RaidName = "The Battle for Mount Hyjal"},
-        [620] = {EncounterName =                "Kaz'Rogal", RaidID = 534, RaidName = "The Battle for Mount Hyjal"},
-        [621] = {EncounterName =                  "Azgalor", RaidID = 534, RaidName = "The Battle for Mount Hyjal"},
-        [622] = {EncounterName =               "Archimonde", RaidID = 534, RaidName = "The Battle for Mount Hyjal"},
+        [649] = {EncounterName =         "High King Maulgar", RaidID = 565, RaidName = "Gruul's Lair"},
+        [650] = {EncounterName =    "Gruul the Dragonkiller", RaidID = 565, RaidName = "Gruul's Lair"},
 
-        [651] = {EncounterName =              "Magtheridon", RaidID = 544, RaidName = "Magtheridon's Lair"},
+        [651] = {EncounterName =               "Magtheridon", RaidID = 544, RaidName = "Magtheridon's Lair"},
 
-        [623] = {EncounterName =     "Hydross the Unstable", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
-        [624] = {EncounterName =         "The Lurker Below", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
-        [625] = {EncounterName =      "Leotheras the Blind", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
-        [626] = {EncounterName =   "Fathom-Lord Karathress", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
-        [627] = {EncounterName =      "Morogrim Tidewalker", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
-        [628] = {EncounterName =              "Lady Vashjr", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
+        [623] = {EncounterName =      "Hydross the Unstable", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
+        [624] = {EncounterName =          "The Lurker Below", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
+        [625] = {EncounterName =       "Leotheras the Blind", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
+        [626] = {EncounterName =    "Fathom-Lord Karathress", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
+        [627] = {EncounterName =       "Morogrim Tidewalker", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
+        [628] = {EncounterName =               "Lady Vashjr", RaidID = 548, RaidName = "Coilfang: Serpentshrine Cavern"},
 
-        [649] = {EncounterName =        "High King Maulgar", RaidID = 565, RaidName = "Gruul's Lair"},
-        [650] = {EncounterName =   "Gruul the Dragonkiller", RaidID = 565, RaidName = "Gruul's Lair"},
+        [730] = {EncounterName =                     "Al'ar", RaidID = 550, RaidName = "Tempest Keep"},
+        [731] = {EncounterName =               "Void Reaver", RaidID = 550, RaidName = "Tempest Keep"},
+        [732] = {EncounterName = "High Astromancer Solarian", RaidID = 550, RaidName = "Tempest Keep"},
+        [733] = {EncounterName =      "Kael'thas Sunstrider", RaidID = 550, RaidName = "Tempest Keep"},
+
+        [618] = {EncounterName =          "Rage Winterchill", RaidID = 534, RaidName = "The Battle for Mount Hyjal"},
+        [619] = {EncounterName =                 "Anetheron", RaidID = 534, RaidName = "The Battle for Mount Hyjal"},
+        [620] = {EncounterName =                 "Kaz'Rogal", RaidID = 534, RaidName = "The Battle for Mount Hyjal"},
+        [621] = {EncounterName =                   "Azgalor", RaidID = 534, RaidName = "The Battle for Mount Hyjal"},
+        [622] = {EncounterName =                "Archimonde", RaidID = 534, RaidName = "The Battle for Mount Hyjal"},
+
+        [601] = {EncounterName =    "High Warlord Naj'entus", RaidID = 564, RaidName = "Black Temple"},
+        [602] = {EncounterName = 	          "Supremus", RaidID = 564, RaidName = "Black Temple"},
+        [603] = {EncounterName = 	    "Shade of Akama", RaidID = 564, RaidName = "Black Temple"},
+        [604] = {EncounterName =           "Teron Gorefiend", RaidID = 564, RaidName = "Black Temple"},
+        [605] = {EncounterName =         "Gurtogg Bloodboil", RaidID = 564, RaidName = "Black Temple"},
+        [606] = {EncounterName = 	"Reliquary of Souls", RaidID = 564, RaidName = "Black Temple"},
+        [607] = {EncounterName =            "Mother Shahraz", RaidID = 564, RaidName = "Black Temple"},
+        [608] = {EncounterName =      "The Illidari Council", RaidID = 564, RaidName = "Black Temple"},
+        [609] = {EncounterName =         "Illidan Stormrage", RaidID = 564, RaidName = "Black Temple"},
     },
     Consumables =
     {
@@ -68,6 +83,8 @@ SoftCouncil.InfoTable =
         [41620] = {              "Bottled Nethergon Vapor", {32905},},
         [27869] = {                            "Dark Rune", {20520},},
         [16666] = {                         "Demonic Rune", {12662},},
+	[28726] = {                       "Nightmare Seed", {22797},},
+        [17528] = {                   "Mighty Rage Potion", {13442},},
     },
 }
 SoftCouncil.DataTable =
