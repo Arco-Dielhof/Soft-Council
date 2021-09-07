@@ -1,27 +1,32 @@
 if SoftCouncil == nil then SoftCouncil = {} end
-SoftCouncil.events = {}
-SoftCouncil.Version = 6
+SoftCouncil.Events = {}
+SoftCouncil.Version = 7
 local AddOnName = "SoftCouncil"
 
 local UpdateFrame, EventFrame = nil, nil
-local MainFrame, ScrollPanel = nil, nil
+local MainFrame = nil
+local RaidsFrame, RaidsScrollPanel = nil, nil
+local EncountersFrame, EncountersScrollPanel = nil, nil
+local PlayersFrame, PlayersScrollPanel = nil, nil
 
 local activeEncounter = false
 
-local dataFrameWidth = 625
+local dataFrameWidth = 670 / 5
 
 local allDateItems, allEncounterItems, allPullItems, allPlayerItems = {Expanded = {},}, {Expanded = {},}, {Expanded = {},}, {Expanded = {},}
 local allDataItems = {}
+
+local SelectedRaid, SelectedEncounter = nil, nil
 
 if SoftCouncilDataTable == nil then SoftCouncilDataTable = SoftCouncil.DataTable end
 
 function SoftCouncil:OnLoad()
     EventFrame = CreateFrame("Frame", nil, UIParent)
-    SoftCouncil:RegisterEvents("ENCOUNTER_START", function(...) print("OnLoadRegister EncounterStart") SoftCouncil.events:EncounterStart(...) end)
-    SoftCouncil:RegisterEvents("ENCOUNTER_END", function(...) SoftCouncil.events:EncounterEnd(...) end)
-    SoftCouncil:RegisterEvents("COMBAT_LOG_EVENT_UNFILTERED", function(...) SoftCouncil.events:CombatLogUnfiltered(...) end)
-    SoftCouncil:RegisterEvents("ADDON_LOADED", function(...) SoftCouncil.events:AddonLoaded(...) end)
-    SoftCouncil:RegisterEvents("VARIABLES_LOADED", function(...) SoftCouncil.events:VariablesLoaded(...) end)
+    SoftCouncil:RegisterEvents("ENCOUNTER_START", function(...) print("OnLoadRegister EncounterStart") SoftCouncil.Events:EncounterStart(...) end)
+    SoftCouncil:RegisterEvents("ENCOUNTER_END", function(...) SoftCouncil.Events:EncounterEnd(...) end)
+    SoftCouncil:RegisterEvents("COMBAT_LOG_EVENT_UNFILTERED", function(...) SoftCouncil.Events:CombatLogUnfiltered(...) end)
+    SoftCouncil:RegisterEvents("ADDON_LOADED", function(...) SoftCouncil.Events:AddonLoaded(...) end)
+    SoftCouncil:RegisterEvents("VARIABLES_LOADED", function(...) SoftCouncil.Events:VariablesLoaded(...) end)
     EventFrame:SetScript("OnEvent", function(...)
         SoftCouncil:OnEvent(...)
     end)
@@ -111,6 +116,58 @@ function SoftCouncil:CreateMainFrame()
     MainFrame.Title.Texture:SetAllPoints()
     MainFrame.Title.Texture:SetTexture("Interface/DialogFrame/UI-DialogBox-Header")
 
+    --RaidsFrame = CreateFrame("ScrollFrame", nil, MainFrame, "UIPanelScrollFrameTemplate BackdropTemplate")
+    RaidsFrame = CreateFrame("ScrollFrame", nil, MainFrame, "UIPanelScrollFrameTemplate")
+    RaidsFrame:SetSize(MainFrame:GetWidth() / 5, MainFrame:GetHeight() - 80)
+    RaidsFrame:SetPoint("TOPLEFT", 15, -42)
+    RaidsFrame:SetFrameStrata("HIGH")
+    -- RaidsFrame:SetBackdrop({
+    --     bgFile = "Interface/BankFrame/Bank-Background",
+    --     tile = true,
+    --     tileSize = 100;
+    -- })
+    -- RaidsFrame:SetBackdropColor(1, 0.25, 0.25, 1)
+
+    RaidsScrollPanel = CreateFrame("FRAME")
+    RaidsScrollPanel:SetSize(RaidsFrame:GetWidth(), 300)
+    RaidsScrollPanel:SetPoint("TOP")
+
+    --EncountersFrame = CreateFrame("ScrollFrame", nil, MainFrame, "UIPanelScrollFrameTemplate BackdropTemplate")
+    EncountersFrame = CreateFrame("ScrollFrame", nil, MainFrame, "UIPanelScrollFrameTemplate")
+    EncountersFrame:SetSize(MainFrame:GetWidth() / 5, MainFrame:GetHeight() - 80)
+    EncountersFrame:SetPoint("TOPLEFT", RaidsFrame, "TOPRIGHT", 25, 0)
+    EncountersFrame:SetFrameStrata("HIGH")
+    -- EncountersFrame:SetBackdrop({
+    --     bgFile = "Interface/BankFrame/Bank-Background",
+    --     tile = true,
+    --     tileSize = 100;
+    -- })
+    -- EncountersFrame:SetBackdropColor(0.25, 1, 0.25, 1)
+
+    EncountersScrollPanel = CreateFrame("FRAME")
+    EncountersScrollPanel:SetSize(EncountersFrame:GetWidth(), 300)
+    EncountersScrollPanel:SetPoint("TOP")
+
+    --PlayersFrame = CreateFrame("ScrollFrame", nil, MainFrame, "UIPanelScrollFrameTemplate BackdropTemplate")
+    PlayersFrame = CreateFrame("ScrollFrame", nil, MainFrame, "UIPanelScrollFrameTemplate")
+    PlayersFrame:SetSize(MainFrame:GetWidth() * 0.45, MainFrame:GetHeight() - 80)
+    PlayersFrame:SetPoint("TOPLEFT", EncountersFrame, "TOPRIGHT", 25, 0)
+    PlayersFrame:SetFrameStrata("HIGH")
+    -- PlayersFrame:SetBackdrop({
+    --     bgFile = "Interface/BankFrame/Bank-Background",
+    --     tile = true,
+    --     tileSize = 100;
+    -- })
+    -- PlayersFrame:SetBackdropColor(0.25, 0.25, 1, 1)
+
+    PlayersScrollPanel = CreateFrame("FRAME")
+    PlayersScrollPanel:SetSize(PlayersFrame:GetWidth(), 300)
+    PlayersScrollPanel:SetPoint("TOP")
+
+    RaidsFrame:SetScrollChild(RaidsScrollPanel)
+    EncountersFrame:SetScrollChild(EncountersScrollPanel)
+    PlayersFrame:SetScrollChild(PlayersScrollPanel)
+
     MainFrame.ExtraBG = CreateFrame("FRAME", nil, MainFrame, "BackdropTemplate")
     MainFrame.ExtraBG:SetSize(MainFrame:GetWidth() - 25, MainFrame:GetHeight() - 79)
     MainFrame.ExtraBG:SetPoint("TOP", 2, -41)
@@ -122,99 +179,20 @@ function SoftCouncil:CreateMainFrame()
     })
     MainFrame.ExtraBG:SetBackdropColor(0.25, 0.25, 0.25, 1)
 
-    local scrollFrame = CreateFrame("ScrollFrame", nil, MainFrame, "UIPanelScrollFrameTemplate BackdropTemplate");
-    scrollFrame:SetSize(MainFrame:GetWidth() - 45, MainFrame:GetHeight() - 77)
-    scrollFrame:SetPoint("TOP", -11, -40)
-    scrollFrame:SetFrameStrata("HIGH")
-
-    ScrollPanel = CreateFrame("Frame")
-    ScrollPanel:SetSize(scrollFrame:GetWidth(), 300)
-    ScrollPanel:SetPoint("TOP")
-
-    MainFrame.Header = CreateFrame("Frame", nil, MainFrame, "BackdropTemplate")
-    MainFrame.Header:SetPoint("TOP", -11, -20)
-    MainFrame.Header:SetSize(ScrollPanel:GetWidth(), 50)
-
-    MainFrame.Header.Selector = CreateFrame("Frame", nil, MainFrame.Header, "BackdropTemplate")
-    MainFrame.Header.Selector:SetSize(80, 24)
-    MainFrame.Header.Selector:SetPoint("TOPLEFT", 5, 0)
-    MainFrame.Header.Selector:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 10,
-        insets = {left = 2, right = 2, top = 2, bottom = 2},
-    })
-    MainFrame.Header.Selector:SetBackdropColor(1, 1, 1, 1)
-
-    MainFrame.Header.Selector.Text = MainFrame.Header.Selector:CreateFontString("MainFrame.Header.Selector.Text", "ARTWORK", "GameFontNormal")
-    MainFrame.Header.Selector.Text:SetSize(MainFrame.Header.Selector:GetWidth(), MainFrame.Header.Selector:GetHeight())
-    MainFrame.Header.Selector.Text:SetPoint("CENTER", 0, 0)
-    MainFrame.Header.Selector.Text:SetTextColor(1, 1, 1, 1)
-    MainFrame.Header.Selector.Text:SetText("Selectors")
-
-    MainFrame.Header.Name = CreateFrame("Frame", nil, MainFrame.Header, "BackdropTemplate")
-    MainFrame.Header.Name:SetSize(100, 24)
-    MainFrame.Header.Name:SetPoint("LEFT", MainFrame.Header.Selector, "RIGHT", -4, 0)
-    MainFrame.Header.Name:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 10,
-        insets = {left = 2, right = 2, top = 2, bottom = 2},
-    })
-    MainFrame.Header.Name:SetBackdropColor(1, 1, 1, 1)
-
-    MainFrame.Header.Name.Text = MainFrame.Header.Name:CreateFontString("MainFrame.Header.Name.Text", "ARTWORK", "GameFontNormal")
-    MainFrame.Header.Name.Text:SetSize(MainFrame.Header.Name:GetWidth(), MainFrame.Header.Name:GetHeight())
-    MainFrame.Header.Name.Text:SetPoint("CENTER", 0, 0)
-    MainFrame.Header.Name.Text:SetTextColor(1, 1, 1, 1)
-    MainFrame.Header.Name.Text:SetText("Name")
-
-    MainFrame.Header.Class = CreateFrame("Frame", nil, MainFrame.Header, "BackdropTemplate")
-    MainFrame.Header.Class:SetSize(75, 24)
-    MainFrame.Header.Class:SetPoint("LEFT", MainFrame.Header.Name, "RIGHT", -4, 0)
-    MainFrame.Header.Class:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 10,
-        insets = {left = 2, right = 2, top = 2, bottom = 2},
-    })
-    MainFrame.Header.Class:SetBackdropColor(1, 1, 1, 1)
-
-    MainFrame.Header.Class.Text = MainFrame.Header.Class:CreateFontString("MainFrame.Header.Class.Text", "ARTWORK", "GameFontNormal")
-    MainFrame.Header.Class.Text:SetSize(MainFrame.Header.Class:GetWidth(), MainFrame.Header.Class:GetHeight())
-    MainFrame.Header.Class.Text:SetPoint("CENTER", 0, 0)
-    MainFrame.Header.Class.Text:SetTextColor(1, 1, 1, 1)
-    MainFrame.Header.Class.Text:SetText("Class")
-
-    MainFrame.Header.Data = CreateFrame("Frame", nil, MainFrame.Header, "BackdropTemplate")
-    MainFrame.Header.Data:SetSize(360, 24)
-    MainFrame.Header.Data:SetPoint("BOTTOMLEFT", MainFrame.Header.Name, "BOTTOMRIGHT", -4, 0)
-    MainFrame.Header.Data:SetBackdrop({
-        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-        edgeSize = 10,
-        insets = {left = 2, right = 2, top = 2, bottom = 2},
-    })
-    MainFrame.Header.Data:SetBackdropColor(1, 1, 1, 1)
-
-    MainFrame.Header.Data.Text = MainFrame.Header.Data:CreateFontString("MainFrame.Header.Data.Text", "ARTWORK", "GameFontNormal")
-    MainFrame.Header.Data.Text:SetSize(MainFrame.Header.Data:GetWidth(), MainFrame.Header.Data:GetHeight())
-    MainFrame.Header.Data.Text:SetPoint("CENTER", 0, 0)
-    MainFrame.Header.Data.Text:SetTextColor(1, 1, 1, 1)
-    MainFrame.Header.Data.Text:SetText("Data")
-
-    local curFont, curSize, curFlags = MainFrame.Header.Name.Text:GetFont()
-    MainFrame.Header.Name.Text:SetFont(curFont, curSize - 2, curFlags)
-    MainFrame.Header.Class.Text:SetFont(curFont, curSize - 2, curFlags)
-    MainFrame.Header.Data.Text:SetFont(curFont, curSize - 2, curFlags)
-
     MainFrame.CloseButton = CreateFrame("Button", nil, MainFrame, "UIPanelCloseButton, BackDropTemplate")
     MainFrame.CloseButton:SetSize(24, 24)
     MainFrame.CloseButton:SetPoint("TOPRIGHT", MainFrame, "TOPRIGHT", -3, -3)
     MainFrame.CloseButton:SetScript("OnClick", function() MainFrame:Hide() end)
-
-    scrollFrame:SetScrollChild(ScrollPanel)
 end
 
 function SoftCouncil:FillScrollPanel()
     SoftCouncil:HideAllFrames()
-    local allTempFrames = {}
+    local allRaidFrames = {}
+    local allEncounterFrames = {}
+    local allPlayerFrames = {}
+
+    local lastFrame = nil
+
     local Data = SoftCouncilDataTable
     local allDates = Data["Dates"]
     for curDate = 1, #allDates do
@@ -226,76 +204,86 @@ function SoftCouncil:FillScrollPanel()
         local year, month, date = string.sub(allDates[curDate], 1, 4), string.sub(allDates[curDate], 5, 6), string.sub(allDates[curDate], 7, 8)
         curDateListItem.Label:SetText(string.format("%s/%s/%s", date, month, year))
         curDateListItem.Key = allDates[curDate]
-        table.insert(allTempFrames, curDateListItem)
-        if allDateItems.Expanded[allDates[curDate]] == true then
-            local DateData = Data[allDates[curDate]]
-            local allEncounters = DateData.Encounters
-            for curEncounter = 1, #allEncounters do
-                local curEncounterKey = string.format("%s:%d", allDates[curDate], allEncounters[curEncounter])
+        table.insert(allRaidFrames, curDateListItem)
+    end
+
+    lastFrame = RaidsScrollPanel
+    for i, frame in ipairs(allRaidFrames) do
+        if lastFrame == RaidsScrollPanel then
+            frame:SetPoint("TOPLEFT", lastFrame, "TOPLEFT", 0, 0)
+        else
+            frame:SetPoint("TOPLEFT", lastFrame, "BOTTOMLEFT", 0, 0)
+        end
+        frame:Show()
+        lastFrame = frame
+    end
+
+    if SelectedRaid ~= nil then
+        local DateData = Data[SelectedRaid]
+        local allEncounters = DateData.Encounters
+        for curEncounter = 1, #allEncounters do
+            local EncounterData = DateData[allEncounters[curEncounter]]
+            local allPulls = EncounterData.Pulls
+            for curPull = 1, #allPulls do
+                local curEncounterKey = string.format("%s:%d\nPull %d", SelectedRaid, allEncounters[curEncounter], curPull)
                 local curEncounterListItem = allEncounterItems[curEncounterKey]
                 if curEncounterListItem == nil then
                     curEncounterListItem = SoftCouncil:CreateEncounterListItem()
                     allEncounterItems[curEncounterKey] = curEncounterListItem
                 end
                 local EncounterInfo = SoftCouncil.InfoTable.Encounters[allEncounters[curEncounter]]
-                curEncounterListItem.Label:SetText(string.format("%s (%d)", EncounterInfo.EncounterName, allEncounters[curEncounter]))
-                curEncounterListItem.Key = curEncounterKey
-                table.insert(allTempFrames, curEncounterListItem)
-                if allEncounterItems.Expanded[curEncounterKey] == true then
-                    local EncounterData = DateData[allEncounters[curEncounter]]
-                    local allPulls = EncounterData.Pulls
-                    for curPull = 1, #allPulls do
-                        local curPullKey = string.format("%s:%d", curEncounterKey, allPulls[curPull])
-                        local curPullListItem = allPullItems[curPullKey]
-                        if curPullListItem == nil then
-                            curPullListItem = SoftCouncil:CreatePullListItem()
-                            allPullItems[curPullKey] = curPullListItem
-                        end
-                        curPullListItem.Label:SetText(string.format("Pull #%s", curPull))
-                        curPullListItem.Key = curPullKey
-                        table.insert(allTempFrames, curPullListItem)
-                        if allPullItems.Expanded[curPullKey] == true then
-                            local PullData = EncounterData[allPulls[curPull]]
-                            local allPlayers = PullData.Players
-                            for curPlayer = 1, #allPlayers do
-                                local curPlayerKey = string.format("%s:%s", curPullKey, allPlayers[curPlayer])
-                                local curPlayerListItem = allPlayerItems[curPlayerKey]
-                                if curPlayerListItem == nil then
-                                    curPlayerListItem = SoftCouncil:CreatePlayerListItem()
-                                    allPlayerItems[curPlayerKey] = curPlayerListItem
-                                end
-                                local PlayerInfo = PullData[PullData.Players[curPlayer]]
-                                curPlayerListItem.Name:SetText(PlayerInfo.Name)
-                                curPlayerListItem.Class:SetText(PlayerInfo.Class)
-                                curPlayerListItem.Key = curPlayerKey
-                                table.insert(allTempFrames, curPlayerListItem)
-                                if allPlayerItems.Expanded[curPlayerKey] == true then
-                                    curPlayerListItem:SetHeight(75)
-                                    SoftCouncil:AddDataToPlayerFrame(curPlayerListItem, PlayerInfo)
-                                else
-                                    SoftCouncil:HideDataFrames(curPlayerListItem)
-                                end
-                            end
-                        end
-                    end
-                end
+                curEncounterListItem.Label:SetText(string.format("%s\nPull %d", EncounterInfo.EncounterName, curPull))
+                curEncounterListItem.Key = {allEncounters[curEncounter], curPull}
+                table.insert(allEncounterFrames, curEncounterListItem)
             end
         end
     end
-    local lastFrame = ScrollPanel
-    for i, frame in ipairs(allTempFrames) do
-        if lastFrame == ScrollPanel then
+
+    lastFrame = EncountersScrollPanel
+    for i, frame in ipairs(allEncounterFrames) do
+        if lastFrame == EncountersScrollPanel then
             frame:SetPoint("TOPLEFT", lastFrame, "TOPLEFT", 0, 0)
         else
             frame:SetPoint("TOPLEFT", lastFrame, "BOTTOMLEFT", 0, 0)
         end
-            frame:Show()
-            lastFrame = frame
+        frame:Show()
+        lastFrame = frame
+    end
+
+    if SelectedEncounter ~= nil then
+        local curEncounter, curPull = SelectedEncounter[1], SelectedEncounter[2]
+        local EncounterData = Data[SelectedRaid][curEncounter][curPull]
+        local allPlayers = EncounterData.Players
+        for curPlayer = 1, #allPlayers do
+            local curPlayerKey = string.format("%s:%s:%s", SelectedEncounter[1], SelectedEncounter[2], allPlayers[curPlayer])
+            local curPlayerListItem = allPlayerItems[curPlayerKey]
+            if curPlayerListItem == nil then
+                curPlayerListItem = SoftCouncil:CreatePlayerListItem()
+                allPlayerItems[curPlayerKey] = curPlayerListItem
+            end
+            local PlayerInfo = EncounterData[allPlayers[curPlayer]]
+            curPlayerListItem.Label:SetText(PlayerInfo.Name)
+            curPlayerListItem.Key = curPlayerKey
+            table.insert(allPlayerFrames, curPlayerListItem)
+            curPlayerListItem:SetHeight(75)
+            SoftCouncil:AddDataToPlayerFrame(curPlayerListItem, PlayerInfo)
+        end
+    end
+
+    lastFrame = PlayersScrollPanel
+    for i, frame in ipairs(allPlayerFrames) do
+        if lastFrame == PlayersScrollPanel then
+            frame:SetPoint("TOPLEFT", lastFrame, "TOPLEFT", 0, 0)
+        else
+            frame:SetPoint("TOPLEFT", lastFrame, "BOTTOMLEFT", 0, 0)
+        end
+        frame:Show()
+        lastFrame = frame
     end
 end
 
 function SoftCouncil:HideDataFrames(curPlayerListItem)
-    curPlayerListItem:SetHeight(25)
+    curPlayerListItem:SetHeight(20)
     for _, curBuffFrame in ipairs(curPlayerListItem.Buffs) do
         curBuffFrame:Hide()
     end
@@ -332,9 +320,9 @@ function SoftCouncil:HideAllFrames()
     end
 end
 
-function SoftCouncil:CreateStandardListItem()
-    local curFrame = CreateFrame("Frame", nil, ScrollPanel, "BackDropTemplate")
-    curFrame:SetSize(dataFrameWidth - 5, 25)
+function SoftCouncil:CreateStandardListItem(ParentScrollFrame)
+    local curFrame = CreateFrame("Frame", nil, ParentScrollFrame, "BackDropTemplate")
+    curFrame:SetSize(dataFrameWidth - 5, 35)
     curFrame:SetPoint("TOPRIGHT", 0, 0)
     curFrame:SetBackdrop({
         bgFile = "Interface/Tooltips/UI-Tooltip-Background",
@@ -344,18 +332,8 @@ function SoftCouncil:CreateStandardListItem()
     })
     curFrame:SetBackdropColor(0.25, 0.25, 0.25, 1)
 
-    return curFrame
-end
-
-function SoftCouncil:CreateDateListItem()
-    local curFrame = SoftCouncil:CreateStandardListItem()
-
-    curFrame:SetScript("OnMouseDown", function() allDateItems.Expanded[curFrame.Key] = not allDateItems.Expanded[curFrame.Key] SoftCouncil:FillScrollPanel() end)
-
-    curFrame.Type = "Date"
-
     curFrame.Label = curFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    curFrame.Label:SetSize(100, 25)
+    curFrame.Label:SetSize(curFrame:GetWidth(), curFrame:GetHeight())
     curFrame.Label:SetPoint("LEFT", 5, 0)
     curFrame.Label:SetJustifyH("LEFT")
     curFrame.Label:SetTextColor(1, 1, 1, 1)
@@ -363,54 +341,33 @@ function SoftCouncil:CreateDateListItem()
     return curFrame
 end
 
-function SoftCouncil:CreateEncounterListItem()
-    local curFrame = SoftCouncil:CreateStandardListItem()
-
-    curFrame:SetScript("OnMouseDown", function() allEncounterItems.Expanded[curFrame.Key] = not allEncounterItems.Expanded[curFrame.Key] SoftCouncil:FillScrollPanel() end)
-
-    curFrame.Type = "Encounter"
-
-    curFrame.Label = curFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    curFrame.Label:SetSize(200, 25)
-    curFrame.Label:SetPoint("LEFT", 30, 0)
-    curFrame.Label:SetJustifyH("LEFT")
-    curFrame.Label:SetTextColor(1, 1, 1, 1)
+function SoftCouncil:CreateDateListItem()
+    local curFrame = SoftCouncil:CreateStandardListItem(RaidsScrollPanel)
+    curFrame:SetScript("OnMouseDown", function() SelectedRaid = curFrame.Key SoftCouncil:FillScrollPanel() end)
+    curFrame.Type = "Date"
 
     return curFrame
 end
 
-function SoftCouncil:CreatePullListItem()
-    local curFrame = SoftCouncil:CreateStandardListItem()
+function SoftCouncil:CreateEncounterListItem()
+    local curFrame = SoftCouncil:CreateStandardListItem(EncountersScrollPanel)
+    curFrame:SetScript("OnMouseDown", function() SelectedEncounter = curFrame.Key SoftCouncil:FillScrollPanel() end)
+    curFrame.Type = "Encounter"
 
-    curFrame:SetScript("OnMouseDown", function() allPullItems.Expanded[curFrame.Key] = not allPullItems.Expanded[curFrame.Key] SoftCouncil:FillScrollPanel() end)
-
-    curFrame.Type = "Pull"
-
-    curFrame.Label = curFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    curFrame.Label:SetSize(100, 25)
-    curFrame.Label:SetPoint("LEFT", 55, 0)
-    curFrame.Label:SetJustifyH("LEFT")
-    curFrame.Label:SetTextColor(1, 1, 1, 1)
+    local curFont, curSize, curFlags = curFrame.Label:GetFont()
+    curFrame.Label:SetFont(curFont, curSize - 2, curFlags)
 
     return curFrame
 end
 
 function SoftCouncil:CreatePlayerListItem()
-    local curFrame = SoftCouncil:CreateStandardListItem()
-
+    local curFrame = SoftCouncil:CreateStandardListItem(PlayersScrollPanel)
     curFrame:SetScript("OnMouseDown", function() allPlayerItems.Expanded[curFrame.Key] = not allPlayerItems.Expanded[curFrame.Key] SoftCouncil:FillScrollPanel() end)
-
     curFrame.Type = "Player"
 
-    curFrame.Name = curFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    curFrame.Name:SetSize(MainFrame.Header.Name:GetWidth(), 25)
-    curFrame.Name:SetPoint("TOPLEFT", 76, 0)
-    curFrame.Name:SetTextColor(1, 1, 1, 1)
-
-    curFrame.Class = curFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-    curFrame.Class:SetSize(MainFrame.Header.Class:GetWidth(), 25)
-    curFrame.Class:SetPoint("TOPLEFT", curFrame.Name, "TOPRIGHT", -4, 0)
-    curFrame.Class:SetTextColor(1, 1, 1, 1)
+    curFrame:SetSize(MainFrame:GetWidth() * 0.45 , 50)
+    curFrame.Label:SetSize(curFrame:GetWidth() - 5, 25)
+    curFrame.Label:SetPoint("TOPLEFT", 5, 0)
 
     curFrame.Buffs = {}
     curFrame.Consumables = {}
@@ -424,21 +381,27 @@ end
 function SoftCouncil:AddDataToPlayerFrame(curFrame, playerInfo)
     if curFrame.BuffLabel == nil then
         curFrame.BuffLabel = curFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-        curFrame.BuffLabel:SetSize(100, 25)
-        curFrame.BuffLabel:SetPoint("TOPLEFT", curFrame.Class, "TOPRIGHT", -4, 0)
+        curFrame.BuffLabel:SetSize(75, 25)
+        curFrame.BuffLabel:SetPoint("TOPLEFT", 40, 0)
         curFrame.BuffLabel:SetTextColor(1, 1, 1, 1)
+        curFrame.BuffLabel:SetJustifyH("RIGHT")
         curFrame.BuffLabel:SetText("Buffs:")
     end
     curFrame.BuffLabel:Show()
 
     if curFrame.ConsumableLabel == nil then
         curFrame.ConsumableLabel = curFrame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-        curFrame.ConsumableLabel:SetSize(100, 25)
+        curFrame.ConsumableLabel:SetSize(75, 25)
         curFrame.ConsumableLabel:SetPoint("TOP", curFrame.BuffLabel, "BOTTOM", 0, -25)
         curFrame.ConsumableLabel:SetTextColor(1, 1, 1, 1)
+        curFrame.ConsumableLabel:SetJustifyH("RIGHT")
         curFrame.ConsumableLabel:SetText("Consumables:")
     end
     curFrame.ConsumableLabel:Show()
+
+    local curFont, curSize, curFlags = curFrame.BuffLabel:GetFont()
+    curFrame.BuffLabel      :SetFont(curFont, 10, curFlags)
+    curFrame.ConsumableLabel:SetFont(curFont, 10, curFlags)
 
     for i = 1, #playerInfo.Buffs do
         local curBuffFrame = curFrame.Buffs[i]
@@ -453,9 +416,9 @@ function SoftCouncil:AddDataToPlayerFrame(curFrame, playerInfo)
         local _, _, curBuffIcon = GetSpellInfo(curBuff)
         curBuffFrame.Texture:SetTexture(curBuffIcon)
         if i <= 10 then
-            curBuffFrame:SetPoint("TOPLEFT", curFrame.Class, "TOPRIGHT", 25 * i + 75, -3)
+            curBuffFrame:SetPoint("TOPLEFT", 18 * i + 100, -3)
         elseif i >= 11 then
-            curBuffFrame:SetPoint("TOPLEFT", curFrame.Class, "TOPRIGHT", 25 * (i - 10)  + 75, -28)
+            curBuffFrame:SetPoint("TOPLEFT", 18 * (i - 10)  + 100, -21)
         end
         curBuffFrame:Show()
     end
@@ -485,7 +448,7 @@ end
 
 function SoftCouncil:CreateDataListItem(curFrame)
     local curDataFrame = CreateFrame("Frame", nil, curFrame, "BackDropTemplate")
-    curDataFrame:SetSize(20, 20)
+    curDataFrame:SetSize(16, 16)
     curDataFrame:SetBackdrop({
         bgFile = "Interface/Tooltips/UI-Tooltip-Background",
         edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
@@ -495,99 +458,6 @@ function SoftCouncil:CreateDataListItem(curFrame)
     curDataFrame:SetBackdropColor(0.25, 0.25, 0.25, 1)
 
     return curDataFrame
-end
-
-function SoftCouncil:FillScrollPanelOld()
-    local allTempFrames = {}
-    local Data = SoftCouncilDataTable
-    local allDates = Data["Dates"]
-    for datesAmount = 1, #allDates do
-        local DateData = Data[allDates[datesAmount]]
-        local allEncounters = DateData.Encounters
-        for encountersAmount = 1, #allEncounters do
-            local EncounterData = DateData[allEncounters[encountersAmount]]
-            local allPulls = EncounterData.Pulls
-            for pullAmount = 1, #allPulls do
-                local PullData = EncounterData[allPulls[pullAmount]]
-                local allPlayers = PullData.Players
-                for playerAmount = 1, #allPlayers do
-                    local PlayerData = PullData[allPlayers[playerAmount]]
-                    local allBuffs = PlayerData.Buffs
-                    local allConsumables = PlayerData.Consumables
-                    local testFrame = CreateFrame("Frame", nil, ScrollPanel, "BackDropTemplate")
-                    testFrame:SetSize(MainFrame:GetWidth() - 50, 25)
-                    testFrame:SetPoint("TOPLEFT", 10, -10)
-                    testFrame:SetBackdrop({
-                        bgFile = "Interface/Tooltips/UI-Tooltip-Background",
-                        edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-                        edgeSize = 8,
-                        insets = {left = 2, right = 2, top = 2, bottom = 2},
-                    })
-                    testFrame:SetBackdropColor(0.25, 0.25, 0.25, 1)
-
-                    testFrame.Date = testFrame:CreateFontString("testFrame", "ARTWORK", "GameFontNormal")
-                    testFrame.Date:SetSize(MainFrame.Header.Date:GetWidth(), 25)
-                    testFrame.Date:SetPoint("LEFT", 0, 0)
-                    testFrame.Date:SetTextColor(1, 1, 1, 1)
-                    local year, month, date = string.sub(allDates[datesAmount], 1, 4), string.sub(allDates[datesAmount], 5, 6), string.sub(allDates[datesAmount], 7, 8)
-                    testFrame.Date:SetText(string.format("%s/%s\n%s", date, month, year))
-
-                    testFrame.Encounter = testFrame:CreateFontString("testFrame", "ARTWORK", "GameFontNormal")
-                    testFrame.Encounter:SetSize(MainFrame.Header.Encounter:GetWidth(), 25)
-                    testFrame.Encounter:SetPoint("LEFT", testFrame.Date, "RIGHT", -4, 0)
-                    testFrame.Encounter:SetTextColor(1, 1, 1, 1)
-                    testFrame.Encounter:SetText(SoftCouncil.InfoTable.Encounters[allEncounters[encountersAmount]].EncounterName)
-
-                    testFrame.Pull = testFrame:CreateFontString("testFrame", "ARTWORK", "GameFontNormal")
-                    testFrame.Pull:SetSize(MainFrame.Header.Pull:GetWidth(), 25)
-                    testFrame.Pull:SetPoint("LEFT", testFrame.Encounter, "RIGHT", -4, 0)
-                    testFrame.Pull:SetTextColor(1, 1, 1, 1)
-                    testFrame.Pull:SetText(allPulls[pullAmount])
-
-                    testFrame.Name = testFrame:CreateFontString("testFrame", "ARTWORK", "GameFontNormal")
-                    testFrame.Name:SetSize(MainFrame.Header.Name:GetWidth(), 25)
-                    testFrame.Name:SetPoint("LEFT", testFrame.Pull, "RIGHT", -4, 0)
-                    testFrame.Name:SetTextColor(1, 1, 1, 1)
-                    testFrame.Name:SetText(string.format("%s\n%s", PullData[allPlayers[playerAmount]].Name, PullData[allPlayers[playerAmount]].Class))
-
-                    testFrame.Data = testFrame:CreateFontString("testFrame", "ARTWORK", "GameFontNormal")
-                    testFrame.Data:SetSize(MainFrame.Header.Data:GetWidth(), 25)
-                    testFrame.Data:SetPoint("LEFT", testFrame.Name, "RIGHT", -4, 0)
-                    testFrame.Data:SetTextColor(1, 1, 1, 1)
-
-                    local allBuffsText, allConsumablesText = nil, nil
-
-                    if allBuffs[1] ~= nil then
-                        allBuffsText = allBuffs[1]
-                        for buffAmount = 2, #allBuffs do
-                            allBuffsText = allBuffsText .. " - " .. allBuffs[buffAmount]
-                        end
-                    end
-
-                    if allConsumables[1] ~= nil then
-                        allConsumablesText = allConsumables[1]
-                        for ConsumablesAmount = 2, #allConsumables do
-                            allConsumablesText = allConsumablesText .. " - " .. allConsumables[ConsumablesAmount]
-                        end
-                    end
-
-                    testFrame.Data:SetText(allBuffsText, "\n", allConsumablesText)
-
-                    local curFont, curSize, curFlags = MainFrame.Header.Date.Text:GetFont()
-                    testFrame.Date     :SetFont(curFont, curSize, curFlags)
-                    testFrame.Encounter:SetFont(curFont, curSize, curFlags)
-                    testFrame.Pull     :SetFont(curFont, curSize, curFlags)
-                    testFrame.Name     :SetFont(curFont, curSize, curFlags)
-                    testFrame.Data     :SetFont(curFont, curSize, curFlags)
-
-                    allTempFrames[#allTempFrames + 1] = testFrame
-                end
-            end
-        end
-    end
-    for i, frame in ipairs(allTempFrames) do
-        frame:SetPoint("TOPLEFT", ScrollPanel, "TOPLEFT", 5, -24 * i + 25)
-    end
 end
 
 function SoftCouncil:RegisterEvents(event, func)
@@ -754,18 +624,18 @@ function SoftCouncil:OnEvent(_, event, ...)
     end
 end
 
-function SoftCouncil.events:EncounterStart(encounterID)
+function SoftCouncil.Events:EncounterStart(encounterID)
     if SoftCouncil.InfoTable.Encounters[encounterID] ~= nil then
         activeEncounter = encounterID
         SoftCouncil:SaveEncounterPull(encounterID)
     end
 end
 
-function SoftCouncil.events:EncounterEnd()
+function SoftCouncil.Events:EncounterEnd()
     activeEncounter = false
 end
 
-function SoftCouncil.events:CombatLogUnfiltered()
+function SoftCouncil.Events:CombatLogUnfiltered()
     if activeEncounter ~= nil then
         local year, month, date = SoftCouncil:GetDateTime()
         local dateString = year .. month .. date
@@ -783,13 +653,13 @@ function SoftCouncil.events:CombatLogUnfiltered()
     end
 end
 
-function SoftCouncil.events:AddonLoaded(...)
+function SoftCouncil.Events:AddonLoaded(...)
     if ... == "SoftCouncil" then
         SoftCouncil.DataTable = SoftCouncilDataTable
     end
 end
 
-function SoftCouncil.events:VariablesLoaded(...)
+function SoftCouncil.Events:VariablesLoaded(...)
     for _, data in pairs(SoftCouncil.InfoTable.Consumables) do
         GetItemInfo(data[2][1])
     end
